@@ -1,0 +1,11 @@
+# Installer test installations
+/.install-test/
+/tmp/
+
+# Logs
+*.log
+
+# Editor files
+*.swp
+*.swo
+*~
