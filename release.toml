@@ -2,7 +2,7 @@ schema = 1
 
 [distribution]
 name = "loclass"
-version = "0.1.0"
+version = "0.2.0"
 python = ">=3.14"
 
 [installation]
@@ -21,11 +21,9 @@ dependencies = []
 id = "loclass-base"
 kind = "python"
 repository = "ssh://git@git.home.arpa:2222/frank/loclass-base.git"
-tag = "v0.2.0"
-commit = "73c6f8cf0e06d02b4b4ebbe2d20cd7cc35c98687"
-dependencies = [
-    "loclass-ldl",
-]
+tag = "v0.3.0"
+commit = "3fd789e5b91741e4efb63162789c7711ebceacdb"
+dependencies = ["loclass-ldl"]
 
 [[components]]
 id = "loclass-tlp"
@@ -33,16 +31,22 @@ kind = "python"
 repository = "ssh://git@git.home.arpa:2222/frank/loclass-tlp.git"
 tag = "v0.1.0"
 commit = "8d777fe9dd4ae4ed9145b48d12bd1543fbb62ca7"
-dependencies = [
-    "loclass-base",
-]
+dependencies = ["loclass-base"]
+
+[[components]]
+id = "loclass-review"
+kind = "python"
+repository = "ssh://git@git.home.arpa:2222/frank/loclass-review.git"
+tag = "v0.2.0"
+commit = "b9add04ad5cd4ef115b890e4daed9ad4e8b93f9b"
+dependencies = ["loclass-base"]
 
 [[components]]
 id = "loclass-starter"
 kind = "starter"
 repository = "ssh://git@git.home.arpa:2222/frank/loclass-starter.git"
-tag = "v0.1.0"
-commit = "690b1112a7ee4a90974342edba01aa5918188710"
+tag = "v0.2.0"
+commit = "fd155ab18015409e73a0dea1feaece71ca2e02e8"
 dependencies = []
 
 [[components]]
@@ -51,7 +55,4 @@ kind = "lua"
 repository = "ssh://git@git.home.arpa:2222/frank/loclass-cockpit.git"
 tag = "v0.1.1"
 commit = "e9544ef340ccefcfa51427a5d2237ba9526d88a5"
-dependencies = [
-    "loclass-base",
-    "loclass-starter",
-]
+dependencies = ["loclass-base", "loclass-starter"]

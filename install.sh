@@ -26,6 +26,7 @@ REQUIRED_IDS = {
     "loclass-ldl",
     "loclass-base",
     "loclass-tlp",
+    "loclass-review",
     "loclass-starter",
     "loclass-cockpit",
 }
@@ -251,8 +252,9 @@ def install_python(release, target):
     discovered = run(
         environment / "bin/loclass", "packages", "list", capture=True
     ).stdout.splitlines()
-    if "loclass.tlp" not in discovered:
-        fail("loclass.tlp wurde nicht registriert.")
+    for package_id in ("loclass.tlp", "loclass.review"):
+        if package_id not in discovered:
+            fail(f"{package_id} wurde nicht registriert.")
 
 
 def smoke_test(directory):
@@ -365,6 +367,26 @@ def doctor(release):
     )
     if schema.get("schema_version") != 1 or not valid_label:
         fail("Das Schema von loclass.tlp ist unerwartet.")
+
+    review_schema = json.loads(
+        run(
+            loclass,
+            "packages",
+            "describe",
+            "loclass.review",
+            "--json",
+            capture=True,
+        ).stdout
+    )
+    valid_mode = any(
+        field.get("name") == "mode"
+        and field.get("type") == "choice"
+        and field.get("required") is True
+        and set(field.get("choices", [])) == {"draft", "final"}
+        for field in review_schema.get("fields", [])
+    )
+    if review_schema.get("schema_version") != 1 or not valid_mode:
+        fail("Das Schema von loclass.review ist unerwartet.")
 
     smoke_test(directory)
     check_path()

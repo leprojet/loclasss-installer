@@ -13,14 +13,15 @@ keine Entwicklungs-Repositories.
 
 ## Aktuelle Distribution
 
-Die Distribution `loclass 0.1.0` besteht aus:
+Die Distribution `loclass 0.2.0` besteht aus:
 
 | Komponente | Version |
 |---|---:|
 | `loclass-ldl` | `v0.2.0` |
-| `loclass-base` | `v0.2.0` |
+| `loclass-base` | `v0.3.0` |
 | `loclass-tlp` | `v0.1.0` |
-| `loclass-starter` | `v0.1.0` |
+| `loclass-review` | `v0.2.0` |
+| `loclass-starter` | `v0.2.0` |
 | `loclass-cockpit` | `v0.1.1` |
 
 Die vollständige Zuordnung von Repository, Tag und Commit-ID steht in
@@ -156,9 +157,9 @@ Nach einer erfolgreichen Installation sieht die Struktur ungefähr so aus:
 
 ```text
 ~/.local/share/loclass/
-├── current -> releases/0.1.0
+├── current -> releases/0.2.0
 └── releases/
-    └── 0.1.0/
+    └── 0.2.0/
         ├── environment/
         │   ├── bin/
         │   ├── lib/
@@ -168,6 +169,7 @@ Nach einer erfolgreichen Installation sieht die Struktur ungefähr so aus:
             ├── loclass-base/
             ├── loclass-cockpit/
             ├── loclass-ldl/
+            ├── loclass-review/
             ├── loclass-starter/
             └── loclass-tlp/
 ```
@@ -201,12 +203,14 @@ Package-Konfiguration anzeigen:
 
 ```sh
 loclass packages describe loclass.tlp
+loclass packages describe loclass.review
 ```
 
 Maschinenlesbare Ausgabe:
 
 ```sh
 loclass packages describe loclass.tlp --json
+loclass packages describe loclass.review --json
 ```
 
 ### loclass-cockpit
@@ -263,7 +267,7 @@ Der Doctor prüft:
 - die Commit-IDs,
 - die isolierte Python-Umgebung,
 - den `loclass`-Entrypoint,
-- das Schema von `loclass.tlp`,
+- die Schemata von `loclass.tlp` und `loclass.review`,
 - den Cockpit-Smoke-Test,
 - die aktive `current`-Verknüpfung,
 - den Installationspfad der Wrapper.
@@ -272,8 +276,8 @@ Ein erfolgreicher Lauf endet ungefähr so:
 
 ```text
 ==> Ergebnis
-loclass 0.1.0 ist vollständig installiert.
-Aktiver Release: /home/USER/.local/share/loclass/releases/0.1.0
+loclass 0.2.0 ist vollständig installiert.
+Aktiver Release: /home/USER/.local/share/loclass/releases/0.2.0
 ```
 
 ### Neu installieren
@@ -328,6 +332,7 @@ TEST_BIN="$PWD/.install-test/bin"
 "$TEST_BIN/loclass" --help
 "$TEST_BIN/loclass" packages list
 "$TEST_BIN/loclass" packages describe loclass.tlp --json
+"$TEST_BIN/loclass" packages describe loclass.review --json
 "$TEST_BIN/loclass-cockpit" --help
 ```
 
@@ -411,7 +416,7 @@ schema = 1
 
 [distribution]
 name = "loclass"
-version = "0.1.0"
+version = "0.2.0"
 python = ">=3.14"
 
 [installation]
@@ -447,16 +452,20 @@ loclass-ldl
   Commit: 8f488dbd896b68d82524bcab979e32987d7cd150
 
 loclass-base
-  Tag:    v0.2.0
-  Commit: 73c6f8cf0e06d02b4b4ebbe2d20cd7cc35c98687
+  Tag:    v0.3.0
+  Commit: 3fd789e5b91741e4efb63162789c7711ebceacdb
 
 loclass-tlp
   Tag:    v0.1.0
   Commit: 8d777fe9dd4ae4ed9145b48d12bd1543fbb62ca7
 
+loclass-review
+  Tag:    v0.2.0
+  Commit: b9add04ad5cd4ef115b890e4daed9ad4e8b93f9b
+
 loclass-starter
-  Tag:    v0.1.0
-  Commit: 690b1112a7ee4a90974342edba01aa5918188710
+  Tag:    v0.2.0
+  Commit: fd155ab18015409e73a0dea1feaece71ca2e02e8
 
 loclass-cockpit
   Tag:    v0.1.1
@@ -494,8 +503,9 @@ weil Git-Tags technisch neu gesetzt werden können.
 Der Installer prüft deshalb zusätzlich die vollständige Commit-ID:
 
 ```text
-Tag:      v0.1.0
-Erwartet: 8d777fe9dd4ae4ed9145b48d12bd1543fbb62ca7
+Komponente: loclass-review
+Tag:        v0.2.0
+Erwartet:   b9add04ad5cd4ef115b890e4daed9ad4e8b93f9b
 ```
 
 Weicht der ausgecheckte Commit ab, wird die Installation abgebrochen.
@@ -508,7 +518,7 @@ Alle Python-Komponenten werden gemeinsam in einer isolierten Umgebung
 installiert:
 
 ```text
-releases/0.1.0/environment/
+releases/0.2.0/environment/
 ```
 
 Dazu gehören:
@@ -516,6 +526,7 @@ Dazu gehören:
 - `loclass`,
 - `loclass-ldl`,
 - `loclass-tlp`,
+- `loclass-review`,
 - deren Laufzeitabhängigkeiten.
 
 Installiert werden die innerhalb des Releases geklonten und verifizierten
@@ -573,6 +584,7 @@ Die Entwicklungsinstallation bleibt unabhängig:
 ├── loclass-cockpit/
 ├── loclass-installer/
 ├── loclass-ldl/
+├── loclass-review/
 ├── loclass-starter/
 └── loclass-tlp/
 ```
@@ -600,7 +612,7 @@ Zugriff auf einen Tag prüfen:
 ```sh
 git ls-remote \
   ssh://git@git.home.arpa:2222/frank/loclass-base.git \
-  refs/tags/v0.2.0
+  refs/tags/v0.3.0
 ```
 
 SSH-Verbindung prüfen:
@@ -675,21 +687,23 @@ Anschließend neu installieren:
 ./install.sh reinstall
 ```
 
-### loclass.tlp wird nicht gefunden
+### Installiertes Package wird nicht gefunden
 
 ```sh
 loclass packages list
 ```
 
-Erwartet wird mindestens:
+Erwartet werden mindestens:
 
 ```text
+loclass.review
 loclass.tlp
 ```
 
-Schema prüfen:
+Schemata prüfen:
 
 ```sh
+loclass packages describe loclass.review --json
 loclass packages describe loclass.tlp --json
 ```
 
@@ -822,25 +836,24 @@ git diff --cached --stat
 Commit erstellen:
 
 ```sh
-git commit -m "feat: add reproducible loclass installer"
+git commit -m "chore: release distribution 0.2.0"
 ```
 
 Annotierten Tag setzen:
 
 ```sh
-git tag -a v0.1.0 -m "loclass-installer 0.1.0"
+git tag -a v0.2.0 -m "loclass-installer 0.2.0"
 ```
 
 Branch und Tag pushen:
 
 ```sh
-git push origin main
-git push origin v0.1.0
+git push --atomic origin main v0.2.0
 ```
 
 ## Derzeitige Einschränkungen
 
-Version 0.1.0 ist auf die interne loclass-Infrastruktur ausgerichtet:
+Version 0.2.0 ist auf die interne loclass-Infrastruktur ausgerichtet:
 
 - Die Repository-URLs zeigen auf `git.home.arpa`.
 - Zugriff über SSH ist erforderlich.
@@ -850,7 +863,7 @@ Version 0.1.0 ist auf die interne loclass-Infrastruktur ausgerichtet:
 - Das Release-Manifest ist noch nicht kryptografisch signiert.
 - Es existiert noch kein öffentlicher Download-Endpunkt.
 
-Diese Einschränkungen sind für die interne Erstversion bewusst akzeptiert.
+Diese Einschränkungen sind für die interne Distribution bewusst akzeptiert.
 
 ## Lizenz
 
