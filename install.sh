@@ -31,6 +31,16 @@ REQUIRED_IDS = {
     "loclass-cockpit",
 }
 REQUIRED_COMMANDS = ("git", "uv", "lua", "fzf", "jq", "find", "realpath")
+MERMAID_COMPONENT_ID = "loclass-mermaid"
+MERMAID_PACKAGE_ID = "loclass.mermaid"
+MERMAID_BROWSER_COMMANDS = (
+    "chromium",
+    "chromium-browser",
+    "google-chrome-stable",
+    "google-chrome",
+    "chrome",
+    "chrome-headless-shell",
+)
 
 script_dir = Path(sys.argv[1]).resolve()
 command = sys.argv[2] if len(sys.argv) > 2 else "install"
@@ -80,9 +90,11 @@ Verwendung:
   ./install.sh help
 
 Umgebungsvariablen:
-  LOCLASS_RELEASE_MANIFEST  Pfad zu release.toml
-  LOCLASS_DATA_HOME         Installationswurzel
-  LOCLASS_BIN_DIR           Verzeichnis für Wrapper
+  LOCLASS_RELEASE_MANIFEST     Pfad zu release.toml
+  LOCLASS_DATA_HOME            Installationswurzel
+  LOCLASS_BIN_DIR              Verzeichnis für Wrapper
+  LOCLASS_MERMAID_BROWSER      Browser für Mermaid-Rendering
+  PUPPETEER_EXECUTABLE_PATH    alternativer Chromium-Pfad
 """
     )
 
@@ -96,6 +108,40 @@ def run(*parts, cwd=None, env=None, capture=False):
         text=True,
         capture_output=capture,
     )
+
+
+def component_ids(release):
+    return {component["id"] for component in release["components"]}
+
+
+def has_component(release, component_id):
+    return component_id in component_ids(release)
+
+
+def find_mermaid_browser():
+    for variable in (
+        "LOCASS_MERMAID_BROWSER",
+        "PUPPETEER_EXECUTABLE_PATH",
+    ):
+        value = os.environ.get(variable)
+        if not value:
+            continue
+
+        executable = shutil.which(os.path.expanduser(value))
+        if executable is None:
+            fail(
+                f"{variable} verweist auf kein ausführbares Programm: "
+                f"{value}"
+            )
+
+        return executable
+
+    for candidate in MERMAID_BROWSER_COMMANDS:
+        executable = shutil.which(candidate)
+        if executable is not None:
+            return executable
+
+    return None
 
 
 def read_release():
@@ -154,11 +200,30 @@ def read_release():
     }
 
 
-def check_prerequisites():
+def check_prerequisites(release):
     step("Voraussetzungen prüfen")
     missing = [name for name in REQUIRED_COMMANDS if shutil.which(name) is None]
     if missing:
         fail("Erforderliche Kommandos fehlen: " + ", ".join(missing))
+
+    if has_component(release, MERMAID_COMPONENT_ID):
+        mermaid_missing = []
+
+        if shutil.which("mmdc") is None:
+            mermaid_missing.append("mmdc")
+
+        browser = find_mermaid_browser()
+        if browser is None:
+            mermaid_missing.append("Chromium-kompatibler Browser")
+
+        if mermaid_missing:
+            fail(
+                "Erforderliche Mermaid-Komponenten fehlen: "
+                + ", ".join(mermaid_missing)
+            )
+
+        print(f"Mermaid-Browser: {browser}")
+
     print("Alle erforderlichen Kommandos sind vorhanden.")
 
 
@@ -252,7 +317,16 @@ def install_python(release, target):
     discovered = run(
         environment / "bin/loclass", "packages", "list", capture=True
     ).stdout.splitlines()
-    for package_id in ("loclass.tlp", "loclass.review"):
+
+    expected_package_ids = {
+        "loclass.tlp",
+        "loclass.review",
+    }
+
+    if has_component(release, MERMAID_COMPONENT_ID):
+        expected_package_ids.add(MERMAID_PACKAGE_ID)
+
+    for package_id in sorted(expected_package_ids):
         if package_id not in discovered:
             fail(f"{package_id} wurde nicht registriert.")
 
@@ -271,6 +345,85 @@ def smoke_test(directory):
         source_dir(directory, "loclass-starter")
     )
     run(script, cwd=cockpit, env=environment)
+
+
+def smoke_test_mermaid(loclass):
+    step("Mermaid-Smoke-Test ausführen")
+
+    browser = find_mermaid_browser()
+    if browser is None:
+        fail("Kein Chromium-kompatibler Browser für Mermaid gefunden.")
+
+    environment = os.environ.copy()
+    environment.setdefault("LOCASS_MERMAID_BROWSER", browser)
+
+    with tempfile.TemporaryDirectory(
+        prefix="loclass-mermaid-doctor-"
+    ) as temporary_directory:
+        root = Path(temporary_directory)
+        source = root / "mermaid-smoke.ldl"
+        output = root / "mermaid-smoke.odt"
+
+        source.write_text(
+            """---
+title: Mermaid Doctor
+subtitle: Installationsprüfung
+author: loclass-installer
+version: 0.1.0
+date: 2026-07-19
+packages:
+  loclass.mermaid: {}
+---
+
+chapter
+  Mermaid-Smoke-Test
+
+Dieses Diagramm wird während der Installationsprüfung gerendert.
+
+code
+  params
+    label: fig:mermaid-doctor
+    caption: Mermaid-Smoke-Test
+    language: mermaid
+
+  body
+    ---
+    flowchart LR
+        DOCTOR[Doctor] --> MERMAID[Mermaid]
+        MERMAID --> PNG[PNG]
+        PNG --> ODT[ODT]
+    ---
+""",
+            encoding="utf-8",
+        )
+
+        run(
+            loclass,
+            "convert",
+            source,
+            "--backend",
+            "odt",
+            "--output",
+            output,
+            env=environment,
+            capture=True,
+        )
+
+        asset_directory = root / "loclass-assets" / "mermaid"
+        assets = list(asset_directory.glob("*.png"))
+
+        if not output.is_file() or output.stat().st_size == 0:
+            fail("Der Mermaid-Smoke-Test hat kein gültiges ODT erzeugt.")
+
+        if len(assets) != 1 or assets[0].stat().st_size == 0:
+            fail(
+                "Der Mermaid-Smoke-Test hat kein gültiges PNG-Asset erzeugt."
+            )
+
+        print(
+            "Mermaid-Smoke-Test erfolgreich: "
+            f"{assets[0].name}, {assets[0].stat().st_size} Bytes"
+        )
 
 
 def is_managed(path):
@@ -342,7 +495,7 @@ def check_path():
 
 
 def doctor(release):
-    check_prerequisites()
+    check_prerequisites(release)
     directory = release_dir(release)
     step(f"Release {release['version']} prüfen")
     errors = verify_release(release, directory)
@@ -388,6 +541,26 @@ def doctor(release):
     if review_schema.get("schema_version") != 1 or not valid_mode:
         fail("Das Schema von loclass.review ist unerwartet.")
 
+    if has_component(release, MERMAID_COMPONENT_ID):
+        mermaid_schema = json.loads(
+            run(
+                loclass,
+                "packages",
+                "describe",
+                MERMAID_PACKAGE_ID,
+                "--json",
+                capture=True,
+            ).stdout
+        )
+
+        if (
+            mermaid_schema.get("schema_version") != 1
+            or mermaid_schema.get("fields") != []
+        ):
+            fail("Das Schema von loclass.mermaid ist unerwartet.")
+
+        smoke_test_mermaid(loclass)
+
     smoke_test(directory)
     check_path()
     step("Ergebnis")
@@ -396,7 +569,7 @@ def doctor(release):
 
 
 def install(release):
-    check_prerequisites()
+    check_prerequisites(release)
     directory = release_dir(release)
 
     if directory.exists():
@@ -431,6 +604,12 @@ def install(release):
         promoted = True
 
         install_python(release, directory)
+
+        if has_component(release, MERMAID_COMPONENT_ID):
+            smoke_test_mermaid(
+                directory / "environment/bin/loclass"
+            )
+
         smoke_test(directory)
     except Exception:
         if staging.exists():
@@ -449,7 +628,7 @@ def install(release):
 
 
 def reinstall(release):
-    check_prerequisites()
+    check_prerequisites(release)
     directory = release_dir(release)
     if current_link.is_symlink() and current_link.resolve() == directory.resolve():
         current_link.unlink()

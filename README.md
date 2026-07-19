@@ -13,12 +13,13 @@ keine Entwicklungs-Repositories.
 
 ## Aktuelle Distribution
 
-Die Distribution `loclass 0.2.0` besteht aus:
+Die Distribution `loclass 0.3.0` besteht aus:
 
 | Komponente | Version |
 |---|---:|
 | `loclass-ldl` | `v0.2.0` |
-| `loclass-base` | `v0.3.0` |
+| `loclass-base` | `v0.4.0` |
+| `loclass-mermaid` | `v0.1.0` |
 | `loclass-tlp` | `v0.1.0` |
 | `loclass-review` | `v0.2.0` |
 | `loclass-starter` | `v0.2.0` |
@@ -169,6 +170,7 @@ Nach einer erfolgreichen Installation sieht die Struktur ungefähr so aus:
             ├── loclass-base/
             ├── loclass-cockpit/
             ├── loclass-ldl/
+├── loclass-mermaid/
             ├── loclass-review/
             ├── loclass-starter/
             └── loclass-tlp/
@@ -184,6 +186,17 @@ zeigt auf die aktive Distribution.
 
 Die beiden Wrapper unter `~/.local/bin` greifen immer über diese Verknüpfung
 auf die aktive Installation zu.
+
+## Mermaid-Voraussetzungen
+
+Die Distribution enthält das optionale Package `loclass.mermaid`. Für das
+Rendern von Mermaid-Diagrammen müssen zusätzlich vorhanden sein:
+
+- Mermaid CLI als Kommando `mmdc`,
+- ein Chromium-kompatibler Browser.
+
+Der Browser wird automatisch gesucht. Alternativ kann er über
+`LOCLASS_MERMAID_BROWSER` oder `PUPPETEER_EXECUTABLE_PATH` festgelegt werden.
 
 ## Installierte Programme
 
@@ -204,6 +217,7 @@ Package-Konfiguration anzeigen:
 ```sh
 loclass packages describe loclass.tlp
 loclass packages describe loclass.review
+loclass packages describe loclass.mermaid
 ```
 
 Maschinenlesbare Ausgabe:
@@ -211,6 +225,7 @@ Maschinenlesbare Ausgabe:
 ```sh
 loclass packages describe loclass.tlp --json
 loclass packages describe loclass.review --json
+loclass packages describe loclass.mermaid --json
 ```
 
 ### loclass-cockpit
@@ -267,7 +282,8 @@ Der Doctor prüft:
 - die Commit-IDs,
 - die isolierte Python-Umgebung,
 - den `loclass`-Entrypoint,
-- die Schemata von `loclass.tlp` und `loclass.review`,
+- die Schemata von `loclass.tlp`, `loclass.review` und `loclass.mermaid`,
+- einen echten Mermaid-Render-Smoke-Test mit PNG- und ODT-Ausgabe,
 - den Cockpit-Smoke-Test,
 - die aktive `current`-Verknüpfung,
 - den Installationspfad der Wrapper.
@@ -276,7 +292,7 @@ Ein erfolgreicher Lauf endet ungefähr so:
 
 ```text
 ==> Ergebnis
-loclass 0.2.0 ist vollständig installiert.
+loclass 0.3.0 ist vollständig installiert.
 Aktiver Release: /home/USER/.local/share/loclass/releases/0.2.0
 ```
 
@@ -416,7 +432,7 @@ schema = 1
 
 [distribution]
 name = "loclass"
-version = "0.2.0"
+version = "0.3.0"
 python = ">=3.14"
 
 [installation]
@@ -426,10 +442,58 @@ binary_directory = "~/.local/bin"
 [[components]]
 id = "loclass-ldl"
 kind = "python"
-repository = "ssh://git@git.home.arpa:2222/frank/loclass-ldl.git"
+repository = "ssh://git@git.home.arpa:2222/loclass/loclass-ldl.git"
 tag = "v0.2.0"
 commit = "8f488dbd896b68d82524bcab979e32987d7cd150"
 dependencies = []
+
+[[components]]
+id = "loclass-base"
+kind = "python"
+repository = "ssh://git@git.home.arpa:2222/loclass/loclass-base.git"
+tag = "v0.4.0"
+commit = "681a41ad1f87d5c206d55fe7321b0117dbb1d0bd"
+dependencies = ["loclass-ldl"]
+
+[[components]]
+id = "loclass-mermaid"
+kind = "python"
+repository = "ssh://git@git.home.arpa:2222/loclass/loclass-mermaid.git"
+tag = "v0.1.0"
+commit = "7b2d705c44ddd6eeca3ba441f3bcab14d5e23473"
+dependencies = ["loclass-base"]
+
+[[components]]
+id = "loclass-tlp"
+kind = "python"
+repository = "ssh://git@git.home.arpa:2222/loclass/loclass-tlp.git"
+tag = "v0.1.0"
+commit = "8d777fe9dd4ae4ed9145b48d12bd1543fbb62ca7"
+dependencies = ["loclass-base"]
+
+[[components]]
+id = "loclass-review"
+kind = "python"
+repository = "ssh://git@git.home.arpa:2222/loclass/loclass-review.git"
+tag = "v0.2.0"
+commit = "b9add04ad5cd4ef115b890e4daed9ad4e8b93f9b"
+dependencies = ["loclass-base"]
+
+[[components]]
+id = "loclass-starter"
+kind = "starter"
+repository = "ssh://git@git.home.arpa:2222/loclass/loclass-starter.git"
+tag = "v0.2.0"
+commit = "fd155ab18015409e73a0dea1feaece71ca2e02e8"
+dependencies = []
+
+[[components]]
+id = "loclass-cockpit"
+kind = "lua"
+repository = "ssh://git@git.home.arpa:2222/loclass/loclass-cockpit.git"
+tag = "v0.1.1"
+commit = "e9544ef340ccefcfa51427a5d2237ba9526d88a5"
+dependencies = ["loclass-base", "loclass-starter"]
 ```
 
 Die Komponenten müssen in Abhängigkeitsreihenfolge aufgeführt sein. Eine
@@ -452,8 +516,12 @@ loclass-ldl
   Commit: 8f488dbd896b68d82524bcab979e32987d7cd150
 
 loclass-base
-  Tag:    v0.3.0
-  Commit: 3fd789e5b91741e4efb63162789c7711ebceacdb
+  Tag:    v0.4.0
+  Commit: 681a41ad1f87d5c206d55fe7321b0117dbb1d0bd
+
+loclass-mermaid
+  Tag:    v0.1.0
+  Commit: 7b2d705c44ddd6eeca3ba441f3bcab14d5e23473
 
 loclass-tlp
   Tag:    v0.1.0
@@ -518,7 +586,7 @@ Alle Python-Komponenten werden gemeinsam in einer isolierten Umgebung
 installiert:
 
 ```text
-releases/0.2.0/environment/
+releases/0.3.0/environment/
 ```
 
 Dazu gehören:
@@ -527,6 +595,7 @@ Dazu gehören:
 - `loclass-ldl`,
 - `loclass-tlp`,
 - `loclass-review`,
+- `loclass-mermaid`,
 - deren Laufzeitabhängigkeiten.
 
 Installiert werden die innerhalb des Releases geklonten und verifizierten
@@ -584,6 +653,7 @@ Die Entwicklungsinstallation bleibt unabhängig:
 ├── loclass-cockpit/
 ├── loclass-installer/
 ├── loclass-ldl/
+├── loclass-mermaid/
 ├── loclass-review/
 ├── loclass-starter/
 └── loclass-tlp/
@@ -696,6 +766,7 @@ loclass packages list
 Erwartet werden mindestens:
 
 ```text
+loclass.mermaid
 loclass.review
 loclass.tlp
 ```
@@ -705,6 +776,7 @@ Schemata prüfen:
 ```sh
 loclass packages describe loclass.review --json
 loclass packages describe loclass.tlp --json
+loclass packages describe loclass.mermaid --json
 ```
 
 ### Cockpit startet nicht
