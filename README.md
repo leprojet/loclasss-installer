@@ -13,7 +13,7 @@ keine Entwicklungs-Repositories.
 
 ## Aktuelle Distribution
 
-Die Distribution `loclass 0.3.0` besteht aus:
+Die Distribution `loclass 0.4.0` besteht aus:
 
 | Komponente | Version |
 |---|---:|
@@ -22,8 +22,8 @@ Die Distribution `loclass 0.3.0` besteht aus:
 | `loclass-mermaid` | `v0.1.0` |
 | `loclass-tlp` | `v0.1.0` |
 | `loclass-review` | `v0.2.0` |
-| `loclass-starter` | `v0.2.0` |
-| `loclass-cockpit` | `v0.1.1` |
+| `loclass-starter` | `v0.3.0` |
+| `loclass-cockpit` | `v0.2.0` |
 
 Die vollständige Zuordnung von Repository, Tag und Commit-ID steht in
 [`release.toml`](release.toml).
@@ -158,9 +158,9 @@ Nach einer erfolgreichen Installation sieht die Struktur ungefähr so aus:
 
 ```text
 ~/.local/share/loclass/
-├── current -> releases/0.2.0
+├── current -> releases/0.4.0
 └── releases/
-    └── 0.2.0/
+    └── 0.4.0/
         ├── environment/
         │   ├── bin/
         │   ├── lib/
