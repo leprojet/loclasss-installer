@@ -13,12 +13,12 @@ keine Entwicklungs-Repositories.
 
 ## Aktuelle Distribution
 
-Die Distribution `loclass 0.4.0` besteht aus:
+Die Distribution `loclass 0.4.1` besteht aus:
 
 | Komponente | Version |
 |---|---:|
 | `loclass-ldl` | `v0.2.0` |
-| `loclass-base` | `v0.4.0` |
+| `loclass-base` | `v0.4.1` |
 | `loclass-mermaid` | `v0.1.0` |
 | `loclass-tlp` | `v0.1.0` |
 | `loclass-review` | `v0.2.0` |
@@ -158,9 +158,9 @@ Nach einer erfolgreichen Installation sieht die Struktur ungefähr so aus:
 
 ```text
 ~/.local/share/loclass/
-├── current -> releases/0.4.0
+├── current -> releases/0.4.1
 └── releases/
-    └── 0.4.0/
+    └── 0.4.1/
         ├── environment/
         │   ├── bin/
         │   ├── lib/
@@ -451,8 +451,8 @@ dependencies = []
 id = "loclass-base"
 kind = "python"
 repository = "ssh://git@git.home.arpa:2222/loclass/loclass-base.git"
-tag = "v0.4.0"
-commit = "681a41ad1f87d5c206d55fe7321b0117dbb1d0bd"
+tag = "v0.4.1"
+commit = "3488949a45751108ea75d7aad43ff2eebff68be3"
 dependencies = ["loclass-ldl"]
 
 [[components]]
@@ -516,8 +516,8 @@ loclass-ldl
   Commit: 8f488dbd896b68d82524bcab979e32987d7cd150
 
 loclass-base
-  Tag:    v0.4.0
-  Commit: 681a41ad1f87d5c206d55fe7321b0117dbb1d0bd
+  Tag:    v0.4.1
+  Commit: 3488949a45751108ea75d7aad43ff2eebff68be3
 
 loclass-mermaid
   Tag:    v0.1.0
