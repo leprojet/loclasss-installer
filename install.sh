@@ -120,7 +120,7 @@ def has_component(release, component_id):
 
 def find_mermaid_browser():
     for variable in (
-        "LOCASS_MERMAID_BROWSER",
+        "LOCLASS_MERMAID_BROWSER",
         "PUPPETEER_EXECUTABLE_PATH",
     ):
         value = os.environ.get(variable)
@@ -355,7 +355,7 @@ def smoke_test_mermaid(loclass):
         fail("Kein Chromium-kompatibler Browser für Mermaid gefunden.")
 
     environment = os.environ.copy()
-    environment.setdefault("LOCASS_MERMAID_BROWSER", browser)
+    environment.setdefault("LOCLASS_MERMAID_BROWSER", browser)
 
     with tempfile.TemporaryDirectory(
         prefix="loclass-mermaid-doctor-"
