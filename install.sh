@@ -30,7 +30,13 @@ REQUIRED_IDS = {
     "loclass-starter",
     "loclass-cockpit",
 }
-REQUIRED_COMMANDS = ("git", "uv", "lua", "fzf", "jq", "find", "realpath")
+REQUIRED_COMMANDS = ("git", "uv")
+COMPONENT_REQUIRED_COMMANDS = {
+    "loclass-cockpit": ("lua", "luac", "fzf", "jq", "find", "realpath"),
+}
+COMPONENT_OPTIONAL_COMMANDS = {
+    "loclass-starter": ("latexmk", "pdflatex"),
+}
 MERMAID_COMPONENT_ID = "loclass-mermaid"
 MERMAID_PACKAGE_ID = "loclass.mermaid"
 MERMAID_BROWSER_COMMANDS = (
@@ -202,9 +208,29 @@ def read_release():
 
 def check_prerequisites(release):
     step("Voraussetzungen prüfen")
-    missing = [name for name in REQUIRED_COMMANDS if shutil.which(name) is None]
+    required_commands = list(REQUIRED_COMMANDS)
+    for component_id, commands in COMPONENT_REQUIRED_COMMANDS.items():
+        if has_component(release, component_id):
+            required_commands.extend(commands)
+
+    missing = [
+        name for name in required_commands if shutil.which(name) is None
+    ]
     if missing:
         fail("Erforderliche Kommandos fehlen: " + ", ".join(missing))
+
+    if has_component(release, "loclass-starter"):
+        missing = [
+            name
+            for name in COMPONENT_OPTIONAL_COMMANDS["loclass-starter"]
+            if shutil.which(name) is None
+        ]
+        if missing:
+            warn(
+                "Optionale Starter-PDF-Kommandos fehlen: "
+                + ", ".join(missing)
+                + ". Der PDF-Workflow von loclass-starter ist nicht verfügbar."
+            )
 
     if has_component(release, MERMAID_COMPONENT_ID):
         mermaid_missing = []

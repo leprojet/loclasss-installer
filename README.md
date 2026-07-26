@@ -55,16 +55,32 @@ freigegebenen Commit-ID entspricht. Erst danach wird die Komponente verwendet.
 
 ## Voraussetzungen
 
-Folgende Programme müssen vorhanden sein:
+Für jede Installation müssen vorhanden sein:
 
 - `git`
 - `uv`
+
+Enthält die Distribution `loclass-cockpit`, werden außerdem dessen
+Laufzeitabhängigkeiten benötigt:
+
 - `lua`
 - `luac`
 - `fzf`
 - `jq`
 - `find`
 - `realpath`
+
+`luac` ist dabei eine Installationsvoraussetzung, weil der Installer den
+verpflichtenden Cockpit-Smoke-Test ausführt und damit die Syntax der
+ausgelieferten Lua-Dateien prüft.
+
+Der optionale PDF-Workflow von `loclass-starter` benötigt zusätzlich:
+
+- `latexmk`
+- `pdflatex`
+
+Fehlen diese beiden Programme, gibt der Installer eine Warnung aus. Die
+Installation und Workflows ohne Starter-PDF-Erzeugung bleiben nutzbar.
 
 Die aktuelle Distribution verwendet Python 3.14. Der Installer startet über
 `uv` und lässt `uv` eine geeignete Python-3.14-Laufzeit auswählen
@@ -78,12 +94,22 @@ werden außerdem benötigt:
 - bei verschlüsseltem Schlüssel ein entsperrter SSH-Agent oder die Eingabe der
   Passphrase.
 
-Die Voraussetzungen können vorab geprüft werden:
+Die zwingenden Voraussetzungen der aktuellen Distribution können vorab
+geprüft werden:
 
 ```sh
 for command in git uv lua luac fzf jq find realpath; do
     command -v "$command" >/dev/null 2>&1 ||
         printf 'Fehlt: %s\n' "$command"
+done
+```
+
+Die optionalen Starter-PDF-Kommandos lassen sich separat prüfen:
+
+```sh
+for command in latexmk pdflatex; do
+    command -v "$command" >/dev/null 2>&1 ||
+        printf 'Optionaler PDF-Workflow nicht verfügbar: %s fehlt\n' "$command"
 done
 ```
 
@@ -277,6 +303,7 @@ Explizit ist ebenfalls möglich:
 Der Doctor prüft:
 
 - externe Voraussetzungen,
+- optionale Starter-PDF-Kommandos und warnt, wenn sie fehlen,
 - das Release-Verzeichnis,
 - alle geklonten Git-Checkouts,
 - die Commit-IDs,
@@ -610,7 +637,7 @@ Vor der Aktivierung führt der Installer den Smoke-Test aus dem
 Er prüft unter anderem:
 
 - Lua- und Cockpit-Abhängigkeiten,
-- Syntax der Lua-Dateien,
+- Syntax der Lua-Dateien mit `luac`,
 - Laden der Cockpit-Module,
 - Export von `app.run`,
 - Dokumenterkennung,
