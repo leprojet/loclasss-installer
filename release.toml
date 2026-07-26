@@ -2,7 +2,7 @@ schema = 1
 
 [distribution]
 name = "loclass"
-version = "0.4.1"
+version = "0.4.2"
 python = ">=3.14"
 
 [installation]
@@ -53,8 +53,8 @@ dependencies = ["loclass-base"]
 id = "loclass-starter"
 kind = "starter"
 repository = "ssh://git@git.home.arpa:2222/loclass/loclass-starter.git"
-tag = "v0.3.0"
-commit = "b5c08ddd1202a080c7552627d6e539cb5c8f7e76"
+tag = "v0.3.1"
+commit = "f37af56870739d72320fba5c42d0b301ce577b68"
 dependencies = []
 
 [[components]]
