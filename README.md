@@ -13,7 +13,7 @@ keine Entwicklungs-Repositories.
 
 ## Aktuelle Distribution
 
-Die Distribution `loclass 0.4.2` besteht aus:
+Die Distribution `loclass 0.4.3` besteht aus:
 
 | Komponente | Version |
 |---|---:|
@@ -22,7 +22,7 @@ Die Distribution `loclass 0.4.2` besteht aus:
 | `loclass-mermaid` | `v0.1.0` |
 | `loclass-tlp` | `v0.1.0` |
 | `loclass-review` | `v0.2.0` |
-| `loclass-starter` | `v0.3.1` |
+| `loclass-starter` | `v0.3.2` |
 | `loclass-cockpit` | `v0.2.0` |
 
 Die vollständige Zuordnung von Repository, Tag und Commit-ID steht in
@@ -158,9 +158,9 @@ Nach einer erfolgreichen Installation sieht die Struktur ungefähr so aus:
 
 ```text
 ~/.local/share/loclass/
-├── current -> releases/0.4.2
+├── current -> releases/0.4.3
 └── releases/
-    └── 0.4.2/
+    └── 0.4.3/
         ├── environment/
         │   ├── bin/
         │   ├── lib/
@@ -483,8 +483,8 @@ dependencies = ["loclass-base"]
 id = "loclass-starter"
 kind = "starter"
 repository = "ssh://git@git.home.arpa:2222/loclass/loclass-starter.git"
-tag = "v0.3.1"
-commit = "f37af56870739d72320fba5c42d0b301ce577b68"
+tag = "v0.3.2"
+commit = "05ddca7b050b0fc993ddb500e268d6973da70625"
 dependencies = []
 
 [[components]]
@@ -532,8 +532,8 @@ loclass-review
   Commit: b9add04ad5cd4ef115b890e4daed9ad4e8b93f9b
 
 loclass-starter
-  Tag:    v0.3.1
-  Commit: f37af56870739d72320fba5c42d0b301ce577b68
+  Tag:    v0.3.2
+  Commit: 05ddca7b050b0fc993ddb500e268d6973da70625
 
 loclass-cockpit
   Tag:    v0.2.0
